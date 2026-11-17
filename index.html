@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighbourly — Skills Match</title>
+<style>
+  :root {
+    /* shadcn/ui "zinc" light theme tokens */
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --ink: #09090b;
+    --muted: #71717a;
+    --line: #e4e4e7;
+    --ring: #18181b;
+    --green: #18181b;
+    --green-dark: #18181b;
+    --green-soft: #f4f4f5;
+    --green-softer: #fafafa;
+    --primary: #18181b;
+    --primary-fg: #fafafa;
+    --amber-soft: #fef2f2;
+    --amber-ink: #b91c1c;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --sidebar-w: 248px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; cursor: pointer; }
+
+  /* ---------- Top navigation ---------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 0 24px;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .logo { display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+  .brand-by {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    padding: 4px 12px 4px 5px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .brand-by:hover { border-color: var(--green); color: var(--ink); }
+  .brand-by b { color: var(--green-dark); font-weight: 750; }
+  .brand-ico { width: 20px; height: 20px; border-radius: 5px; display: block; }
+
+  .brand-kd {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    border: 1px solid var(--green);
+    border-radius: 999px;
+    background: #fff;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    color: var(--green-dark);
+    white-space: nowrap;
+    margin-left: auto;
+    font-weight: 550;
+    transition: background 0.15s;
+  }
+  .brand-kd:hover { background: var(--green-soft); }
+  .brand-kd b { font-weight: 750; }
+  .kd-logo {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    padding: 2px 7px;
+    letter-spacing: 0.02em;
+  }
+  .kd-dot { color: var(--muted); }
+  .logo-name { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em; color: var(--green-dark); }
+  .logo-tag { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+  .breadcrumb {
+    font-size: 0.85rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .breadcrumb b { color: var(--ink); font-weight: 600; }
+  .topbar-search {
+    position: relative;
+  }
+  .topbar-search input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #f6f8f6;
+    padding: 9px 16px 9px 38px;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--ink);
+  }
+  .topbar-search input:focus { outline: none; border-color: var(--green); background: #fff; }
+  .topbar-search .search-ico {
+    position: absolute;
+    left: 13px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .topbar-icon {
+    width: 40px; height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--muted);
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--green);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-grid;
+    place-items: center;
+  }
+  img.avatar { display: block; }
+
+  /* ---------- Shell: sidebar + main ---------- */
+  .shell { display: flex; min-height: calc(100vh - 62px); }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: sticky;
+    top: 62px;
+    height: calc(100vh - 62px);
+    overflow-y: auto;
+  }
+  .nav-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 12px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: left;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .nav-item:hover { background: var(--green-soft); }
+  .nav-item.active { background: var(--green-soft); color: var(--ink); font-weight: 600; }
+  .nav-item .ico { width: 20px; text-align: center; }
+  .sidebar-cta {
+    margin: 16px 10px;
+    background: var(--green-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+    font-size: 0.85rem;
+    color: var(--ink);
+  }
+  .sidebar-cta button {
+    margin-top: 8px;
+    width: 100%;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: 6px;
+    padding: 9px 0;
+    font-weight: 600;
+    font-size: 0.86rem;
+  }
+  .sidebar-cta button:hover { opacity: 0.88; }
+  .sidebar-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .sidebar-foot .who b { display: block; font-size: 0.88rem; }
+  .sidebar-foot .who span { font-size: 0.76rem; color: var(--muted); }
+
+  /* ---------- Main ---------- */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 32px 32px 64px;
+    max-width: 1160px;
+  }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .page-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+  .page-sub { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+  .loc-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* ---------- Stat cards ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 26px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .stat-ico {
+    width: 42px; height: 42px;
+    border-radius: 8px;
+    background: var(--green-soft);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .stat-num { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+  .stat-label { font-size: 0.85rem; color: var(--muted); }
+
+  /* ---------- Two-column: form + side panel ---------- */
+  .duo { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; margin-bottom: 34px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px;
+  }
+  .card h2 { font-size: 1.1rem; font-weight: 750; letter-spacing: -0.01em; }
+  .card .card-sub { color: var(--muted); font-size: 0.88rem; margin: 3px 0 18px; }
+
+  label { display: block; font-size: 0.85rem; font-weight: 650; margin-bottom: 6px; }
+  textarea, input[type="text"], select {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 0.93rem;
+    color: var(--ink);
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  textarea { min-height: 92px; resize: vertical; }
+  textarea:focus, input:focus, select:focus {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px rgba(24,24,27,0.12);
+    background: #fff;
+  }
+  select { appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7a70' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  .field { margin-bottom: 16px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .char-count { float: right; font-weight: 500; color: var(--muted); font-size: 0.78rem; }
+  .field small { display: block; color: var(--muted); font-size: 0.78rem; margin-top: 5px; }
+
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+  .pill-label { font-size: 0.85rem; font-weight: 650; width: 100%; margin-bottom: 0; }
+  .pill {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.83rem;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .pill:hover { background: var(--green-soft); }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    border-radius: 6px;
+    padding: 12px 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  /* ---------- Match result ---------- */
+  #matchResult { margin-top: 18px; }
+  .result-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; background: var(--surface); }
+  .result-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted); margin-bottom: 6px; }
+  .result-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .result-name { font-size: 1.05rem; font-weight: 650; }
+  .result-area { color: var(--muted); font-size: 0.88rem; }
+  .result-why { font-size: 0.94rem; }
+  .result-why strong { font-weight: 650; }
+  .result-note { margin-top: 12px; font-size: 0.8rem; color: var(--muted); }
+  .skill-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip {
+    background: var(--green-soft);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .result-error { background: var(--amber-soft); color: var(--amber-ink); border-radius: 6px; padding: 14px 16px; font-size: 0.9rem; }
+
+  /* ---------- Side panel ---------- */
+  .side-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+  .side-panel h3 { font-size: 1.02rem; font-weight: 750; }
+  .side-panel .side-sub { color: var(--muted); font-size: 0.85rem; margin: 3px 0 14px; }
+  .side-art {
+    background: var(--green-softer);
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .side-art svg { max-width: 100%; height: auto; }
+  .steps { display: grid; gap: 12px; margin-bottom: 16px; }
+  .step { display: flex; gap: 12px; }
+  .step-no {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green-dark);
+    font-size: 0.8rem;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .step b { font-size: 0.9rem; display: block; }
+  .step span { font-size: 0.82rem; color: var(--muted); }
+  .side-note {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    border-top: 1px solid var(--line);
+    padding-top: 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* ---------- Neighbour list ---------- */
+  .list-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    border: 1px solid transparent;
+    background: var(--green-soft);
+    border-radius: 6px;
+    padding: 6px 13px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
+  .sort-box { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--muted); }
+  .sort-box select { width: auto; padding: 8px 34px 8px 12px; font-size: 0.85rem; }
+
+  .helper-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .helper-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .helper-card .helper-top { display: flex; gap: 12px; align-items: center; }
+  .helper-card .avatar { width: 46px; height: 46px; font-size: 1rem; flex-shrink: 0; }
+  .helper-name { font-size: 0.98rem; font-weight: 600; }
+  .helper-area { color: var(--muted); font-size: 0.8rem; }
+  .helper-card .skills { display: grid; gap: 8px; margin-top: 2px; }
+  .skill-title { font-size: 0.87rem; font-weight: 600; color: var(--ink); }
+  .skill-detail { color: var(--muted); font-size: 0.8rem; }
+  .helper-card .foot-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px; }
+  .badge-cat {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--muted);
+    background: var(--green-soft);
+    border-radius: 6px;
+    padding: 3px 9px;
+  }
+  .badge-sample { font-size: 0.7rem; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 2px 9px; }
+  .empty-note { color: var(--muted); font-size: 0.9rem; padding: 20px 0; }
+
+  footer.page-foot { text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 36px; }
+
+  /* ---------- Views ---------- */
+  .view { }
+  .view[hidden] { display: none; }
+
+  /* ---------- Overview: collectible card carousel ---------- */
+  .ov-head { margin-bottom: 20px; }
+  .ov-title { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+  .ov-sub { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+
+  .carousel { position: relative; }
+  .car-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: grid;
+    place-items: center;
+  }
+  .car-btn:hover { border-color: var(--green); color: var(--green-dark); }
+  .car-btn.prev { left: -12px; }
+  .car-btn.next { right: -12px; }
+
+  .coll-strip {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 14px 14px 22px;
+    scrollbar-width: thin;
+    scrollbar-color: #cfe0d4 transparent;
+  }
+  .coll-strip::-webkit-scrollbar { height: 8px; }
+  .coll-strip::-webkit-scrollbar-thumb { background: #cfe0d4; border-radius: 99px; }
+  .coll-strip::-webkit-scrollbar-track { background: transparent; }
+
+  .coll-card {
+    scroll-snap-align: start;
+    flex: 0 0 230px;
+    width: 230px;
+    border-radius: 18px;
+    padding: 18px 16px;
+    color: #fff;
+    background: linear-gradient(155deg, var(--c1), var(--c2));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 6px 16px rgba(20, 40, 28, 0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .coll-brand { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.66rem; letter-spacing: 0.06em; font-weight: 700; opacity: 0.9; }
+  .coll-brand .serial { opacity: 0.75; font-weight: 600; }
+  .coll-avatar { display: grid; place-items: center; margin: 4px 0; }
+  .coll-avatar img {
+    width: 84px; height: 84px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.85);
+    object-fit: cover;
+    background: #fff;
+  }
+  .coll-name { font-size: 1.12rem; font-weight: 800; text-align: center; letter-spacing: -0.01em; line-height: 1.2; }
+  .coll-title { font-size: 0.72rem; font-weight: 750; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.95; }
+  .coll-badge {
+    align-self: center;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.22);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+  .coll-stats { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .coll-stat {
+    font-size: 0.66rem;
+    font-weight: 700;
+    background: rgba(0,0,0,0.22);
+    border-radius: 8px;
+    padding: 4px 9px;
+    letter-spacing: 0.03em;
+  }
+  .coll-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.3);
+    padding-top: 10px;
+    margin-top: 2px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .coll-foot .code { opacity: 0.8; font-weight: 600; }
+
+  .ov-note { color: var(--muted); font-size: 0.8rem; margin-top: 10px; padding: 0 14px; }
+
+  .ov-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 26px; padding: 0 14px; }
+  .btn-nav {
+    flex: 1;
+    min-width: 220px;
+    max-width: 360px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 16px 20px;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .btn-nav:hover { border-color: var(--green); background: var(--green-softer); }
+  .btn-nav b { display: block; font-size: 0.98rem; font-weight: 750; color: var(--green-dark); }
+  .btn-nav span { display: block; color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+
+  @media (max-width: 720px) {
+    .car-btn.prev { left: -4px; }
+    .car-btn.next { right: -4px; }
+    .coll-card { flex-basis: 200px; width: 200px; }
+    .ov-title { font-size: 1.4rem; }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1020px) {
+    .duo { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 48px; }
+  }
+  @media (max-width: 720px) {
+    .stats { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+    .breadcrumb { display: none; }
+    .topbar { padding: 0 14px; gap: 10px; }
+    .page-title { font-size: 1.4rem; }
+    .main { padding: 20px 14px 40px; }
+    .card, .side-panel { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== Top navigation ===== -->
+<nav class="topbar">
+  <div class="logo">
+    <span class="logo-name">Neighbourly</span>
+    <span class="logo-tag">Skills Match</span>
+  </div>
+  <a class="brand-by" href="#" title="Created by ILMUCode">
+    <img class="brand-ico" src="data:image/png;base64,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" alt="ILMUCode logo">
+    <span>created by <b>ILMUCode</b></span>
+  </a>
+  <div class="breadcrumb">Community / <b>Overview</b></div>
+  <a class="brand-kd" href="https://krackeddevs.com/profile/nazlamp" target="_blank" rel="noopener noreferrer" title="KrackedDevs profile — @nazlamp">
+    <span class="kd-logo">&lt;KD&gt;</span>
+    <span>KrackedDevs</span>
+    <span class="kd-dot">·</span>
+    <span>by <b>@nazlamp</b></span>
+  </a>
+  <button class="topbar-icon" aria-label="Notifications">&#128276;</button>
+  <div class="avatar" title="Guest">G</div>
+</nav>
+
+<div class="shell">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="nav-label">Menu</div>
+    <button class="nav-item"><span class="ico">&#127968;</span> Overview</button>
+    <button class="nav-item"><span class="ico">&#128269;</span> Find a Helper</button>
+    <button class="nav-item"><span class="ico">&#128218;</span> Helper Library</button>
+    <div class="sidebar-cta">
+      Have a skill to share?
+      <button type="button">Offer your skills &rarr;</button>
+    </div>
+    <button class="nav-item"><span class="ico">&#10067;</span> Help &amp; Support</button>
+    <div class="sidebar-foot">
+      <div class="avatar" style="width:36px;height:36px;font-size:0.8rem;">G</div>
+      <div class="who">
+        <b>Guest</b>
+        <span>Community member</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="main">
+
+    <!-- ==== View: Overview (collectible cards) ==== -->
+    <div class="view" id="view-overview">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Neighbourhood overview</div>
+          <div class="page-sub">Everyone sharing their skills in the community — collect them all.</div>
+        </div>
+        <span class="loc-pill">&#128205; Sample community: Klang Valley</span>
+      </div>
+
+      <div class="ov-head">
+        <div class="ov-title">Community cards</div>
+        <div class="ov-sub">Slide left or right to browse all 22 neighbours.</div>
+      </div>
+
+      <div class="carousel">
+        <button class="car-btn prev" id="carPrev" aria-label="Slide left">&#10094;</button>
+        <div class="coll-strip" id="collStrip"></div>
+        <button class="car-btn next" id="carNext" aria-label="Slide right">&#10095;</button>
+      </div>
+      <p class="ov-note">Card titles like “Fixer” or “Coach” are just flavour labels for browsing — the real matching happens on the Find a Helper page. All profiles are fictional samples.</p>
+
+      <div class="ov-actions">
+        <button type="button" class="btn-nav" data-goto="find">
+          <b>&#128269; Find a Helper</b>
+          <span>Describe your task and get a suggested match.</span>
+        </button>
+        <button type="button" class="btn-nav" data-goto="library">
+          <b>&#128218; Helper Library</b>
+          <span>Browse all neighbours, filter by skill category.</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==== View: Find a Helper ==== -->
+    <div class="view" id="view-find" hidden>
+
+    <div class="page-head">
+      <div>
+        <div class="page-title">Find the right help, nearby.</div>
+        <div class="page-sub">Connect with skilled neighbours you can count on.</div>
+      </div>
+      <span class="loc-pill">&#128205; Sample community: Klang Valley</span>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-ico">&#128101;</div>
+        <div>
+          <div class="stat-num" id="statHelpers">–</div>
+          <div class="stat-label">Neighbours on the list</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico">&#128295;</div>
+        <div>
+          <div class="stat-num" id="statSkills">–</div>
+          <div class="stat-label">Skills offered, from repairs to cooking</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-ico">&#127991;</div>
+        <div>
+          <div class="stat-num" id="statCats">–</div>
+          <div class="stat-label">Categories of everyday help</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form + side panel -->
+    <div class="duo">
+
+      <section class="card" aria-labelledby="request-heading">
+        <h2 id="request-heading">What do you need help with?</h2>
+        <p class="card-sub">Tell us a little about your task. We'll suggest relevant neighbours.</p>
+
+        <div class="field">
+          <label for="requestText">Describe your task <span class="char-count" id="charCount">0/500</span></label>
+          <textarea id="requestText" maxlength="500" placeholder="e.g. My ceiling fan is making noise and needs checking."></textarea>
+        </div>
+
+        <div class="pills" id="popularPills">
+          <span class="pill-label">Popular categories:</span>
+          <button type="button" class="pill" data-hint="I need help with a home repair: ">Home repairs</button>
+          <button type="button" class="pill" data-hint="I'd like help with cooking or baking: ">Cooking</button>
+          <button type="button" class="pill" data-hint="I'm looking for lessons or tutoring in: ">Lessons</button>
+          <button type="button" class="pill" data-hint="I need tech support with: ">Tech support</button>
+        </div>
+
+        <div class="field">
+          <label for="requestArea">Your area</label>
+          <input type="text" id="requestArea" placeholder="e.g. Section 7, Shah Alam">
+          <small>Used to prioritise neighbours closer to you.</small>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="whenNeeded">When do you need help?</label>
+            <select id="whenNeeded">
+              <option>Flexible</option>
+              <option>Today</option>
+              <option>This weekend</option>
+              <option>This week</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="areaPref">Area preference</label>
+            <select id="areaPref">
+              <option>Prefer my area</option>
+              <option>My area only</option>
+              <option>Any area</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="matchBtn">&#128269; Find my best match</button>
+
+        <div id="matchResult" aria-live="polite"></div>
+      </section>
+
+      <!-- Side panel -->
+      <aside class="side-panel">
+        <h3>A little help goes a long way</h3>
+        <p class="side-sub">Stronger neighbourhoods make a happier Malaysia.</p>
+        <div class="side-art" aria-hidden="true">
+          <svg width="240" height="130" viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg" role="img">
+            <circle cx="30" cy="28" r="14" fill="#f4f4f5"/>
+            <rect x="18" y="70" width="52" height="40" rx="3" fill="#d4d4d8"/>
+            <path d="M12 70 L44 48 L76 70 Z" fill="#18181b"/>
+            <rect x="36" y="88" width="16" height="22" rx="2" fill="#6b4f3a"/>
+            <rect x="150" y="64" width="60" height="46" rx="3" fill="#e4e4e7"/>
+            <path d="M143 64 L180 42 L217 64 Z" fill="#3f3f46"/>
+            <rect x="170" y="82" width="18" height="28" rx="2" fill="#6b4f3a"/>
+            <rect x="88" y="82" width="44" height="14" rx="7" fill="#fff" stroke="#3f8f5f" stroke-width="2"/>
+            <text x="110" y="92.5" text-anchor="middle" font-family="Arial" font-size="8" font-weight="bold" fill="#18181b">KITA JIRAN</text>
+            <rect x="96" y="102" width="4" height="10" fill="#a1a1aa"/>
+            <rect x="120" y="102" width="4" height="10" fill="#a1a1aa"/>
+            <rect x="88" y="96" width="0" height="0"/>
+            <circle cx="200" cy="30" r="9" fill="#a1a1aa"/>
+            <rect x="197" y="38" width="6" height="14" fill="#a1a1aa"/>
+            <circle cx="215" cy="34" r="7" fill="#d4d4d8"/>
+            <rect x="213" y="40" width="5" height="12" fill="#d4d4d8"/>
+          </svg>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-no">1</div>
+            <div><b>Describe your task</b><span>Tell us what you need help with.</span></div>
+          </div>
+          <div class="step">
+            <div class="step-no">2</div>
+            <div><b>Explore suggested matches</b><span>We'll show nearby neighbours with relevant skills.</span></div>
+          </div>
+          <div class="step">
+            <div class="step-no">3</div>
+            <div><b>Connect with a neighbour</b><span>Message them and arrange the details.</span></div>
+          </div>
+        </div>
+        <div class="side-note">
+          <span>&#128737;</span>
+          <span>You choose who to contact. Stay safe and respectful. All profiles here are fictional samples.</span>
+        </div>
+      </aside>
+    </div>
+    </div><!-- /view-find -->
+
+    <!-- ==== View: Helper Library ==== -->
+    <div class="view" id="view-library" hidden>
+    <div class="page-head">
+      <div>
+        <div class="page-title">Helper Library</div>
+        <div class="page-sub">Every neighbour offering help — browse, filter, and find the right skill.</div>
+      </div>
+      <span class="loc-pill">&#128205; Sample community: Klang Valley</span>
+    </div>
+
+    <div class="topbar-search" style="max-width:420px;margin-bottom:18px;">
+      <span class="search-ico">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="Search skills or neighbours..." aria-label="Search skills or neighbours">
+    </div>
+
+    <section aria-labelledby="neighbours-heading">
+      <div class="list-head">
+        <div>
+          <h2 id="neighbours-heading" style="font-size:1.2rem;font-weight:800;">Meet your neighbours</h2>
+          <p style="color:var(--muted);font-size:0.9rem;margin-top:2px;">Discover skills shared by people in your community.</p>
+        </div>
+        <div class="sort-box">
+          <label for="sortSelect" style="margin:0;">Sort</label>
+          <select id="sortSelect">
+            <option value="listed">Listed order</option>
+            <option value="az">Name A–Z</option>
+          </select>
+        </div>
+      </div>
+      <div class="tabs" id="categoryTabs"></div>
+      <div class="helper-grid" id="helperGrid" style="margin-top:16px;"></div>
+      <p class="empty-note" id="emptyNote" style="display:none;">No neighbours match that filter — try another category or search term.</p>
+    </section>
+
+    <footer class="page-foot">
+      Everything runs locally in your browser and resets when you leave. Helper profiles are fictional samples for demo purposes.<br>
+      Created <span style="color:var(--green-dark);font-weight:650;">by ILMUCode</span>.
+    </footer>
+    </div><!-- /view-library -->
+  </main>
+</div>
+
+<script>
+  // ---------- Sample helpers (fictional, Malaysia-specific) ----------
+  const HELPERS = [
+    {
+      name: "Aunty Faridah",
+      area: "Taman Tun Dr Ismail, Kuala Lumpur",
+      skills: [
+        {
+          title: "Cooking & kuih-making",
+          category: "Food & cooking",
+          detail: "Rendang, asam pedas, kuih raya, festive catering prep",
+          keywords: ["cook", "cooking", "bake", "baking", "kuih", "rendang", "recipe", "food", "meal", "catering", "raya", "festive", "dinner", "party"]
+        },
+        {
+          title: "Sewing & mending",
+          category: "Home & repairs",
+          detail: "Hemming baju kurung, replacing zips, altering clothes",
+          keywords: ["sew", "sewing", "mend", "mending", "zip", "zipper", "alter", "alteration", "clothes", "baju", "kurung", "kebaya", "tear", "torn", "button", "tailor"]
+        }
+      ]
+    },
+    {
+      name: "Rajesh Menon",
+      area: "Bandar Sunway, Petaling Jaya",
+      skills: [
+        {
+          title: "Bicycle repair & maintenance",
+          category: "Home & repairs",
+          detail: "Brake and gear adjustments, puncture patches, full tune-ups",
+          keywords: ["bicycle", "bike", "cycle", "brake", "gear", "puncture", "tyre", "tire", "chain", "pedal", "tune"]
+        },
+        {
+          title: "Badminton coaching for beginners",
+          category: "Sports",
+          detail: "Weekend basics: grip, footwork, and serves at the community court",
+          keywords: ["badminton", "sport", "coach", "coaching", "racket", "racquet", "smash", "serve", "training"]
+        }
+      ]
+    },
+    {
+      name: "Encik Hafiz",
+      area: "Section 7, Shah Alam",
+      skills: [
+        {
+          title: "Home electrical fixes",
+          category: "Home & repairs",
+          detail: "Sockets, wiring checks, ceiling fan installs and noise repairs",
+          keywords: ["electrical", "electric", "socket", "plug", "wiring", "wire", "light", "lamp", "fan", "ceiling", "switch", "power", "trip", "breaker"]
+        },
+        {
+          title: "Phone & laptop troubleshooting",
+          category: "Tech help",
+          detail: "Slow devices, software updates, battery and screen checks",
+          keywords: ["phone", "laptop", "computer", "pc", "software", "update", "slow", "battery", "screen", "windows", "android", "iphone", "wifi", "internet", "printer"]
+        }
+      ]
+    },
+    {
+      name: "Madam Chong Siew Ling",
+      area: "SS2, Petaling Jaya",
+      skills: [
+        {
+          title: "Home baking",
+          category: "Food & cooking",
+          detail: "Butter cakes, pineapple tarts, mooncakes and cookies for festivals",
+          keywords: ["bake", "baking", "cake", "cookie", "tart", "mooncake", "dessert", "brownie", "pastry"]
+        },
+        {
+          title: "Party food prep",
+          category: "Food & cooking",
+          detail: "Buffet setup helpers, birthday cake orders, dessert table styling",
+          keywords: ["party", "birthday", "buffet", "catering", "event", "dessert", "table", "celebration"]
+        }
+      ]
+    },
+    {
+      name: "Encik Karim",
+      area: "Ampang, Selangor",
+      skills: [
+        {
+          title: "Plumbing repairs",
+          category: "Home & repairs",
+          detail: "Leaking taps, pipe replacement, clogged sinks and toilets",
+          keywords: ["plumbing", "plumber", "tap", "faucet", "pipe", "leak", "leaking", "clog", "clogged", "toilet", "sink", "drain", "water", "shower", "wc"]
+        }
+      ]
+    },
+    {
+      name: "Puan Nurul Aini",
+      area: "Bangi, Selangor",
+      skills: [
+        {
+          title: "Quran & Jawi classes for kids",
+          category: "Learning",
+          detail: "Weekend recitation, tajweed basics and Jawi writing practice",
+          keywords: ["quran", "quranic", "jawi", "recitation", "tajweed", "religious", "islamic", "class", "kids", "children"]
+        },
+        {
+          title: "Primary school Maths tutoring",
+          category: "Learning",
+          detail: "Year 1–6 syllabus help, exam prep, homework guidance",
+          keywords: ["maths", "math", "tutor", "tutoring", "tuition", "homework", "exam", "school", "primary", "upsr", "numbers", "arithmetic"]
+        }
+      ]
+    },
+    {
+      name: "Uncle Lim",
+      area: "Cheras, Kuala Lumpur",
+      skills: [
+        {
+          title: "Furniture assembly & mounting",
+          category: "Home & repairs",
+          detail: "Flat-pack builds, wall shelves, curtain rods, picture hanging",
+          keywords: ["furniture", "assemble", "assembly", "ikea", "flat", "pack", "shelf", "shelves", "mount", "drill", "wall", "curtain", "rod", "picture", "mirror", "cabinet", "table", "chair", "wardrobe"]
+        }
+      ]
+    },
+    {
+      name: "Michelle Yap",
+      area: "Mont Kiara, Kuala Lumpur",
+      skills: [
+        {
+          title: "English conversation & IELTS prep",
+          category: "Learning",
+          detail: "Speaking practice, interview coaching, IELTS writing feedback",
+          keywords: ["english", "conversation", "ielts", "speaking", "interview", "language", "writing", "toefl", "grammar", "vocabulary"]
+        },
+        {
+          title: "Resume & cover letter help",
+          category: "Learning",
+          detail: "CV reviews, LinkedIn profiles, job application writing",
+          keywords: ["resume", "cv", "cover", "letter", "linkedin", "job", "application", "career"]
+        }
+      ]
+    },
+    {
+      name: "Siva Kumar",
+      area: "Seri Kembangan, Selangor",
+      skills: [
+        {
+          title: "Basic car service & washing",
+          category: "Home & repairs",
+          detail: "Oil changes, battery checks, engine wash, weekend car spa",
+          keywords: ["car", "auto", "vehicle", "service", "wash", "washing", "oil", "battery", "engine", "polish", "wax", "motor"]
+        },
+        {
+          title: "Tyre change & puncture repair",
+          category: "Home & repairs",
+          detail: "Flat tyres, spare swaps, pressure checks at your porch",
+          keywords: ["tyre", "tire", "puncture", "flat", "wheel", "spare", "pressure"]
+        }
+      ]
+    },
+    {
+      name: "Kak Rosnah",
+      area: "Puchong, Selangor",
+      skills: [
+        {
+          title: "Gardening & plant care",
+          category: "Home & repairs",
+          detail: "Potting, pruning, fertilising, kitchen garden setup",
+          keywords: ["garden", "gardening", "plant", "plants", "flower", "pot", "prune", "pruning", "soil", "fertiliser", "fertilizer", "landscaping", "lawn", "grass"]
+        }
+      ]
+    },
+    {
+      name: "Mr. Tan Wei Ming",
+      area: "Damansara Heights, Kuala Lumpur",
+      skills: [
+        {
+          title: "Aircond cleaning & servicing",
+          category: "Home & repairs",
+          detail: "Split-unit washes, gas top-ups, filter replacement",
+          keywords: ["aircond", "air", "con", "conditioning", "cooling", "gas", "filter", "unit", "cold", "cool"]
+        }
+      ]
+    },
+    {
+      name: "Devi Ramachandran",
+      area: "Setapak, Kuala Lumpur",
+      skills: [
+        {
+          title: "Pet sitting & dog walking",
+          category: "Pets & care",
+          detail: "Day care for cats and dogs, walking, feeding while you travel",
+          keywords: ["pet", "pets", "dog", "dogs", "cat", "cats", "kitten", "puppy", "sit", "sitting", "walk", "walking", "feeding", "animal", "boarding"]
+        },
+        {
+          title: "Basic pet grooming",
+          category: "Pets & care",
+          detail: "Nail trims, brushing, baths for small breeds",
+          keywords: ["groom", "grooming", "nail", "trim", "bath", "brush", "fur", "shampoo"]
+        }
+      ]
+    },
+    {
+      name: "Encik Johan",
+      area: "Kota Damansara, Petaling Jaya",
+      skills: [
+        {
+          title: "Painting & wall touch-ups",
+          category: "Home & repairs",
+          detail: "Room repaints, crack filling, colour consultation",
+          keywords: ["paint", "painting", "painter", "wall", "crack", "repaint", "colour", "color", "touch"]
+        }
+      ]
+    },
+    {
+      name: "Cik Aina",
+      area: "Cyberjaya, Selangor",
+      skills: [
+        {
+          title: "Event photography",
+          category: "Creative & events",
+          detail: "Family portraits, birthday shoots, small event coverage",
+          keywords: ["photo", "photography", "photographer", "camera", "portrait", "shoot", "event", "wedding", "picture", "snapshot"]
+        },
+        {
+          title: "Photo editing",
+          category: "Creative & events",
+          detail: "Retouching, album layout, old photo restoration",
+          keywords: ["edit", "editing", "retouch", "photoshop", "restore", "album", "enhance"]
+        }
+      ]
+    },
+    {
+      name: "Mr. Wong Chee Keong",
+      area: "Klang, Selangor",
+      skills: [
+        {
+          title: "Guitar & ukulele lessons",
+          category: "Learning",
+          detail: "Beginner chords, strumming patterns, song practice",
+          keywords: ["guitar", "ukulele", "music", "instrument", "chord", "strum", "song", "lesson", "band"]
+        }
+      ]
+    },
+    {
+      name: "Puan Zaiton",
+      area: "Sentul, Kuala Lumpur",
+      skills: [
+        {
+          title: "Traditional Malay massage (urut)",
+          category: "Wellness",
+          detail: "Post-massage relaxation, shoulder and back relief, herbal packs",
+          keywords: ["massage", "urut", "back", "shoulder", "neck", "relax", "relief", "postnatal", "confinement", "herbal", "sore", "ache", "pain"]
+        }
+      ]
+    },
+    {
+      name: "Ahmad Faiz",
+      area: "Gombak, Selangor",
+      skills: [
+        {
+          title: "Kids football & futsal coaching",
+          category: "Sports",
+          detail: "Weekend drills, ball control, friendly match setups",
+          keywords: ["football", "futsal", "soccer", "ball", "coach", "coaching", "sport", "training", "goal", "strike"]
+        }
+      ]
+    },
+    {
+      name: "Mrs. Lee Hui Ying",
+      area: "Bukit Jalil, Kuala Lumpur",
+      skills: [
+        {
+          title: "Piano lessons",
+          category: "Learning",
+          detail: "Beginner to Grade 3, ABRSM exam prep, music theory",
+          keywords: ["piano", "keyboard", "music", "lesson", "abrsm", "grade", "theory", "note", "keys"]
+        }
+      ]
+    },
+    {
+      name: "Ravi Shankar",
+      area: "Subang Jaya, Selangor",
+      skills: [
+        {
+          title: "Moving & heavy lifting help",
+          category: "Home & repairs",
+          detail: "Furniture shifting, packing, lorry arrangement for house moves",
+          keywords: ["move", "moving", "lift", "lifting", "carry", "heavy", "furniture", "relocate", "relocation", "house", "lorry", "truck", "pack", "packing", "shift"]
+        }
+      ]
+    },
+    {
+      name: "Aunty Sophia",
+      area: "Putrajaya",
+      skills: [
+        {
+          title: "Swimming lessons for kids",
+          category: "Sports",
+          detail: "Water confidence, basic strokes, pool safety at the community pool",
+          keywords: ["swim", "swimming", "pool", "water", "stroke", "float", "lesson", "kids", "children"]
+        }
+      ]
+    },
+    {
+      name: "Encik Rahim",
+      area: "Rawang, Selangor",
+      skills: [
+        {
+          title: "Fishing trips & gear repair",
+          category: "Sports",
+          detail: "Weekend pond trips, rod and reel fixes, bait tips",
+          keywords: ["fishing", "fish", "rod", "reel", "bait", "tackle", "pond", "line", "hook", "trip"]
+        }
+      ]
+    },
+    {
+      name: "Encik Samad",
+      area: "Batu Caves, Selangor",
+      skills: [
+        {
+          title: "Roof & gutter cleaning",
+          category: "Home & repairs",
+          detail: "Leaf clearing, gutter unblocking, ceiling leak patching",
+          keywords: ["roof", "roofing", "gutter", "ceiling", "leak", "leaking", "tile", "tiles", "rain", "drip", "patch"]
+        }
+      ]
+    }
+  ];
+
+  const CATEGORIES = ["All skills", "Home & repairs", "Food & cooking", "Learning", "Sports", "Tech help", "Pets & care", "Wellness", "Creative & events"];
+
+  const AVATAR_COLORS = ["#18181b", "#3f3f46", "#52525b", "#71717a", "#27272a", "#44403c", "#57534e"];
+
+  function initials(name) {
+    return name
+      .replace(/^(Aunty|Uncle|Encik|Puan|Cik|Madam|Mr\.|Mrs\.|Dr\.)\s+/i, "")
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(w => w[0])
+      .join("")
+      .toUpperCase();
+  }
+
+  function avatarColor(name) {
+    let h = 0;
+    for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 997;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  // Image placeholder for the avatar circle: a person silhouette on the
+  // neighbour's colour, encoded as a data URI so the file stays self-contained.
+  function avatarImage(name) {
+    const bg = avatarColor(name);
+    const svg =
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
+      `<rect width="64" height="64" fill="${bg}"/>` +
+      `<circle cx="32" cy="24" r="11" fill="#ffffff" opacity="0.92"/>` +
+      `<path d="M12 58 C12 43 20 38 32 38 C44 38 52 43 52 58 Z" fill="#ffffff" opacity="0.92"/>` +
+      `</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // ---------- Stats ----------
+  function renderStats() {
+    const skillsCount = HELPERS.reduce((n, h) => n + h.skills.length, 0);
+    const cats = new Set();
+    HELPERS.forEach(h => h.skills.forEach(s => cats.add(s.category)));
+    document.getElementById("statHelpers").textContent = HELPERS.length;
+    document.getElementById("statSkills").textContent = skillsCount;
+    document.getElementById("statCats").textContent = cats.size;
+  }
+
+  // ---------- Neighbour list: tabs, search, sort ----------
+  let activeCategory = "All skills";
+  let activeSort = "listed";
+
+  function renderTabs() {
+    const tabs = document.getElementById("categoryTabs");
+    tabs.innerHTML = "";
+    CATEGORIES.forEach(cat => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "tab" + (cat === activeCategory ? " active" : "");
+      btn.textContent = cat;
+      btn.addEventListener("click", () => {
+        activeCategory = cat;
+        renderTabs();
+        renderHelpers();
+      });
+      tabs.appendChild(btn);
+    });
+  }
+
+  function getVisibleHelpers() {
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    let list = HELPERS.filter(h => {
+      const catOk = activeCategory === "All skills" || h.skills.some(s => s.category === activeCategory);
+      if (!catOk) return false;
+      if (!q) return true;
+      const haystack = (h.name + " " + h.area + " " + h.skills.map(s => s.title + " " + s.detail).join(" ")).toLowerCase();
+      return haystack.includes(q);
+    });
+    if (activeSort === "az") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+    return list;
+  }
+
+  function renderHelpers() {
+    const grid = document.getElementById("helperGrid");
+    const emptyNote = document.getElementById("emptyNote");
+    const list = getVisibleHelpers();
+    grid.innerHTML = "";
+    emptyNote.style.display = list.length === 0 ? "block" : "none";
+    list.forEach(h => {
+      const card = document.createElement("div");
+      card.className = "helper-card";
+      const cats = [...new Set(h.skills.map(s => s.category))];
+      const skillsHtml = h.skills.map(s => `
+        <div>
+          <div class="skill-title">${s.title}</div>
+          <div class="skill-detail">${s.detail}</div>
+        </div>`).join("");
+      card.innerHTML = `
+        <div class="helper-top">
+          <img class="avatar" src="${avatarImage(h.name)}" alt="Profile placeholder for ${h.name}">
+          <div>
+            <div class="helper-name">${h.name}</div>
+            <div class="helper-area">${h.area}</div>
+          </div>
+        </div>
+        <div class="skills">${skillsHtml}</div>
+        <div class="foot-row">
+          <span class="badge-cat">${cats.join(" · ")}</span>
+          <span class="badge-sample">Sample</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById("searchInput").addEventListener("input", renderHelpers);
+  document.getElementById("sortSelect").addEventListener("change", (e) => {
+    activeSort = e.target.value;
+    renderHelpers();
+  });
+
+  // ---------- Character counter ----------
+  const requestText = document.getElementById("requestText");
+  const charCount = document.getElementById("charCount");
+  requestText.addEventListener("input", () => {
+    charCount.textContent = requestText.value.length + "/500";
+  });
+
+  // ---------- Popular category pills ----------
+  document.getElementById("popularPills").addEventListener("click", (e) => {
+    const pill = e.target.closest(".pill");
+    if (!pill) return;
+    requestText.value = pill.dataset.hint;
+    requestText.focus();
+    charCount.textContent = requestText.value.length + "/500";
+  });
+
+  // ---------- Matching ----------
+  function wordsOf(text) {
+    return text.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 1);
+  }
+
+  function findMatch(requestText, areaText, areaPref) {
+    const words = wordsOf(requestText);
+    const areaWords = wordsOf(areaText);
+
+    let pool = HELPERS;
+    if (areaPref === "My area only" && areaWords.length > 0) {
+      pool = HELPERS.filter(h =>
+        areaWords.some(w => h.area.toLowerCase().split(/[^a-z0-9]+/).includes(w))
+      );
+      if (pool.length === 0) return { best: null, others: [], noAreaMatch: true };
+    }
+
+    const scored = pool.map(h => {
+      const matchedSkills = [];
+      let score = 0;
+      h.skills.forEach(s => {
+        const hits = s.keywords.filter(k =>
+          words.some(w => w === k || (w.length >= 4 && k.includes(w)) || (k.length >= 4 && w.includes(k)))
+        );
+        if (hits.length > 0) {
+          matchedSkills.push(s.title);
+          score += hits.length * 2;
+        }
+      });
+      const helperAreaWords = h.area.toLowerCase().split(/[^a-z0-9]+/);
+      const areaOverlap = areaWords.filter(w => helperAreaWords.includes(w)).length;
+      if (areaPref !== "Any area" && areaWords.length > 0 && areaOverlap > 0) score += 3;
+      return { helper: h, score, matchedSkills, areaOverlap };
+    }).sort((a, b) => b.score - a.score);
+
+    return { best: scored[0], others: scored.slice(1), noAreaMatch: false };
+  }
+
+  function localWhy(best, requestText) {
+    if (best.matchedSkills.length > 0) {
+      return `<strong>${best.helper.name}</strong> offers <strong>${best.matchedSkills.join(" and ")}</strong>, which lines up with “${escapeHtml(requestText)}”.`;
+    }
+    return `No exact skill match for “${escapeHtml(requestText)}”, but <strong>${best.helper.name}</strong> is the closest general helper on the list.`;
+  }
+
+  document.getElementById("matchBtn").addEventListener("click", () => {
+    const req = requestText.value.trim();
+    const areaText = document.getElementById("requestArea").value.trim();
+    const when = document.getElementById("whenNeeded").value;
+    const areaPref = document.getElementById("areaPref").value;
+    const resultBox = document.getElementById("matchResult");
+
+    if (!req) {
+      resultBox.innerHTML = `<div class="result-error">Please describe what you need help with first — even a short line like “my kitchen tap is leaking”.</div>`;
+      return;
+    }
+
+    const { best, others, noAreaMatch } = findMatch(req, areaText, areaPref);
+
+    if (noAreaMatch) {
+      resultBox.innerHTML = `<div class="result-error">No neighbours on the sample list are based in that area. Try “Prefer my area” or “Any area”, or leave the area field empty.</div>`;
+      return;
+    }
+
+    const runnerUps = others
+      .filter(o => o.score > 0)
+      .map(o => `<span class="chip">${o.helper.name} — ${o.matchedSkills[0]}</span>`)
+      .join("");
+
+    const whenNote = when !== "Flexible" ? ` When: ${when.toLowerCase()}.` : "";
+    const areaNote = best.areaOverlap > 0 && areaPref !== "Any area"
+      ? ` They are also based in the same area you mentioned, so reaching them should be easy.`
+      : "";
+
+    resultBox.innerHTML = `
+      <div class="result-card">
+        <div class="result-label">Best match</div>
+        <div class="result-head">
+          <img class="avatar" src="${avatarImage(best.helper.name)}" alt="Profile placeholder for ${best.helper.name}">
+          <div>
+            <div class="result-name">${best.helper.name}</div>
+            <div class="result-area">${best.helper.area}</div>
+          </div>
+        </div>
+        <div class="result-why">${localWhy(best, req)}${areaNote}${whenNote}</div>
+        <div class="skill-chips">
+          ${best.helper.skills.map(s => `<span class="chip">${s.title}</span>`).join("")}
+        </div>
+        ${runnerUps ? `<div class="skill-chips" style="margin-top:10px;"><span class="chip" style="color:var(--muted);">Also possible:</span>${runnerUps}</div>` : ""}
+        <div class="result-note">This suggestion comes from the sample list below — reach out through your neighbourhood group or community board.</div>
+      </div>`;
+  });
+
+  // ---------- View switching (sidebar + overview buttons) ----------
+  const views = {
+    overview: document.getElementById("view-overview"),
+    find: document.getElementById("view-find"),
+    library: document.getElementById("view-library")
+  };
+
+  function showView(name) {
+    Object.keys(views).forEach(k => { views[k].hidden = (k !== name); });
+    navItems.forEach(n => n.classList.remove("active"));
+    navItems.forEach(n => {
+      const label = n.textContent.trim();
+      if (name === "overview" && label.includes("Overview")) n.classList.add("active");
+      if (name === "find" && label.includes("Find a Helper")) n.classList.add("active");
+      if (name === "library" && label.includes("Helper Library")) n.classList.add("active");
+    });
+    window.scrollTo({ top: 0 });
+  }
+
+  const navItems = document.querySelectorAll(".nav-item");
+
+  navItems.forEach(item => {
+    item.addEventListener("click", () => {
+      const label = item.textContent.trim();
+      if (label.includes("Overview")) {
+        showView("overview");
+      } else if (label.includes("Helper Library")) {
+        showView("library");
+      } else {
+        showView("find");
+      }
+    });
+  });
+
+  document.querySelectorAll(".btn-nav").forEach(btn => {
+    btn.addEventListener("click", () => showView(btn.dataset.goto));
+  });
+
+  // ---------- Overview: collectible cards + carousel ----------
+  const CARD_THEMES = [
+    ["#18181b", "#09090b"], ["#3f3f46", "#18181b"], ["#27272a", "#09090b"],
+    ["#44403c", "#1c1917"], ["#3f3f46", "#27272a"], ["#52525b", "#27272a"],
+    ["#1c1917", "#0c0a09"], ["#57534e", "#292524"]
+  ];
+  const TITLES = ["FIXER", "COACH", "MAKER", "TEACHER", "GUARDIAN", "MENTOR", "NEIGHBOUR", "HOST"];
+  const BADGES = ["COMMUNITY", "SAMPLE", "KAMPUNG", "JIRAN"];
+
+  function cardNo(name) {
+    let h = 7;
+    for (const ch of name) h = (h * 33 + ch.charCodeAt(0)) % 100003;
+    return h;
+  }
+
+  function plainAvatar(name) {
+    const svg =
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">` +
+      `<rect width="64" height="64" fill="#f2f6f3"/>` +
+      `<circle cx="32" cy="24" r="11" fill="#a1a1aa"/>` +
+      `<path d="M12 58 C12 43 20 38 32 38 C44 38 52 43 52 58 Z" fill="#a1a1aa"/>` +
+      `</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  function renderCollectibles() {
+    const strip = document.getElementById("collStrip");
+    strip.innerHTML = "";
+    HELPERS.forEach((h, i) => {
+      const [c1, c2] = CARD_THEMES[cardNo(h.name) % CARD_THEMES.length];
+      const title = TITLES[cardNo(h.name) % TITLES.length];
+      const badge = BADGES[i % BADGES.length];
+      const code = "NB-" + String(1000 + (cardNo(h.name) % 9000)) + "-" + h.name.slice(0, 2).toUpperCase();
+      const stat1 = h.skills[0].category.split(" ")[0].toUpperCase();
+      const stat2 = h.skills.length + (h.skills.length > 1 ? " SKILLS" : " SKILL");
+      const card = document.createElement("div");
+      card.className = "coll-card";
+      card.style.setProperty("--c1", c1);
+      card.style.setProperty("--c2", c2);
+      card.innerHTML = `
+        <div class="coll-brand">
+          <span>NEIGHBOURLY</span>
+          <span class="serial">// NEIGHBOUR</span>
+        </div>
+        <div class="coll-avatar">
+          <img src="${plainAvatar(h.name)}" alt="Profile placeholder for ${h.name}">
+        </div>
+        <div class="coll-name">${h.name}</div>
+        <div class="coll-title">${title}</div>
+        <div class="coll-badge">${badge}</div>
+        <div class="coll-stats">
+          <span class="coll-stat">${stat1}</span>
+          <span class="coll-stat">${stat2}</span>
+        </div>
+        <div class="coll-foot">
+          <span>SET 01</span>
+          <span class="code">${code}</span>
+        </div>`;
+      strip.appendChild(card);
+    });
+  }
+
+  // Carousel buttons slide by one card width
+  const strip = document.getElementById("collStrip");
+  document.getElementById("carPrev").addEventListener("click", () => {
+    strip.scrollBy({ left: -248, behavior: "smooth" });
+  });
+  document.getElementById("carNext").addEventListener("click", () => {
+    strip.scrollBy({ left: 248, behavior: "smooth" });
+  });
+
+  // ---------- Init ----------
+  renderStats();
+  renderTabs();
+  renderHelpers();
+  renderCollectibles();
+</script>
+</body>
+</html>
